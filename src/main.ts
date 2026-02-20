@@ -1,9 +1,21 @@
 function main() {
 	const props = PropertiesService.getScriptProperties();
-	const rootDirId: string = props.getProperty("rootDirId")!;
-	const spreadsheetId: string = props.getProperty("spreadsheetId")!;
+	const rootDirId = props.getProperty("rootDirId");
+	if (rootDirId === null) {
+		console.error("Error, variable rootDirId not set");
+		return;
+	}
+	const spreadsheetId = props.getProperty("spreadsheetId")!;
+	if (spreadsheetId === null) {
+		console.error("Error, variable spreadsheet not set");
+		return;
+	}
+	console.log(`getting root folder ${rootDirId}`);
 	const rootDir = DriveApp.getFolderById(rootDirId);
+	console.log(`... got it. The folder is named ${rootDir.getName()}`);
+	console.log(`loading spreadsheet with id: ${spreadsheetId}`);
 	const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+	console.log(`... spreadsheet loaded. Its name is ${spreadsheet.getName()}`);
 	// 一枚目のシートを使う
 	const sheet = spreadsheet.getSheets()[0];
 	listFiles(rootDir.getFiles(), sheet);
@@ -72,6 +84,9 @@ function listFiles(
 		sheet
 			.getRange(row, 1, 1, RecordColumns.length)
 			.setValues([RecordColumns.map((col) => fileRecord[col])]);
+		if (row % 20 === 1) {
+			console.log(`logging: processed ${row - 1} files`);
+		}
 		row++;
 	}
 	console.log(`Recorded ${row - 1} files`);
