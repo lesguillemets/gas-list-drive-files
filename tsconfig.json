@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"lib": ["esnext"],
+		"moduleResolution": "Bundler",
+		"strict": true,
+		"skipLibCheck": true,
+		"outDir": "dist"
+	},
+	"include": ["src/**/*.ts"]
+}

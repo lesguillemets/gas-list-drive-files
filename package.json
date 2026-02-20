@@ -1,0 +1,24 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "pnpm tsc",
+    "push": "pnpm build && clasp push",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --apply ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.29.2",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
+    "@google/clasp": "^3.2.0",
+    "@types/google-apps-script": "^2.0.8",
+    "typescript": "^5.9.3"
+  }
+}
+
