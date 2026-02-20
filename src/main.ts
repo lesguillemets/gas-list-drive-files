@@ -74,7 +74,7 @@ function listFiles(
 	// シートを全部消して
 	sheet.clear({ contentsOnly: true });
 	// ヘッダの設定
-	sheet.getRange(1, 1, 1, RecordColumns.length).setValues([[RecordColumns]]);
+	sheet.getRange(1, 1, 1, RecordColumns.length).setValues([RecordColumns]);
 	// 2 行目からデータを書き込みはじめますよ
 	let row = 2;
 
