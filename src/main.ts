@@ -78,57 +78,40 @@ function listFiles(
 	sheet.getRange(1, 1, 1, RecordColumns.length).setValues([RecordColumns]);
 	// 2 行目からデータを書き込みはじめますよ
 
-	const processed = walkFiles(
-		rootDir.getFiles(),
-		[rootDir.getFolders()],
-		rootDir,
-		sheet,
-	);
+	const processed = walkFiles(rootDir, sheet);
 	console.log(`Recorded ${processed} files`);
 }
 
 function walkFiles(
-	files: GoogleAppsScript.Drive.FileIterator | undefined,
-	dirs: Array<GoogleAppsScript.Drive.FolderIterator>,
-	currentDir: GoogleAppsScript.Drive.Folder | undefined,
+	rootDir: GoogleAppsScript.Drive.Folder,
 	sheet: GoogleAppsScript.Spreadsheet.Sheet,
-	n: number = 0,
 ): number {
-	if (currentDir !== undefined) {
-		console.log(`Reading folder ${currentDir.getName()}...`);
-	}
-	// 直下のファイル一覧があればそれを一通り処理
-	while (files?.hasNext()) {
-		// n個目のファイルですよ
-		n++;
-		const fileRecord = generateRecord(files.next());
-		sheet
-			.getRange(n + 1, 1, 1, RecordColumns.length)
-			.setValues([RecordColumns.map((col) => fileRecord[col])]);
-		if (n % 20 === 0) {
-			console.log(`logging: Processed ${n} files`);
+	let n = 0;
+	const stack: GoogleAppsScript.Drive.Folder[] = [rootDir];
+	while (stack.length > 0) {
+		const dir = stack.pop() as GoogleAppsScript.Drive.Folder;
+		console.log(`Reading folder ${dir.getName()}...`);
+		const files = dir.getFiles();
+		while (files.hasNext()) {
+			n++;
+			const fileRecord = generateRecord(files.next());
+			sheet
+				.getRange(n + 1, 1, 1, RecordColumns.length)
+				.setValues([RecordColumns.map((col) => fileRecord[col])]);
+			if (n % 20 === 0) {
+				console.log(`logging: Processed ${n} files`);
+			}
+		}
+		const subDirs = dir.getFolders();
+		const subDirsList: GoogleAppsScript.Drive.Folder[] = [];
+		while (subDirs.hasNext()) {
+			subDirsList.push(subDirs.next());
+		}
+		for (let i = subDirsList.length - 1; i >= 0; i--) {
+			stack.push(subDirsList[i]);
 		}
 	}
-	// じゃあ次はディレクトリ見てくね
-	const nextDirIterator = dirs.at(-1);
-	// 待ってるディレクトリがない→全部終わった！
-	if (nextDirIterator === undefined) {
-		return n;
-	}
-	if (nextDirIterator.hasNext()) {
-		// 最後に読んでる FolderIterator に残りがある→それを読んで次に
-		// ファイル一覧と
-		const nextDir: GoogleAppsScript.Drive.Folder = nextDirIterator.next();
-		// サブディレクトリを保持して…
-		const nextFiles = nextDir.getFiles();
-		dirs.push(nextDir.getFolders());
-		// そこからまた始めるぜ
-		return walkFiles(nextFiles, dirs, nextDir, sheet, n);
-	} else {
-		// 最後に読んだ FolderIterator が終わったので，その次の FolderIterator を処理
-		dirs.pop();
-		return walkFiles(undefined, dirs, undefined, sheet, n);
-	}
+	return n;
 }
 
 function getLocationString(f: GoogleAppsScript.Drive.File): string {
