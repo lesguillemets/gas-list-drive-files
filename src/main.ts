@@ -103,8 +103,12 @@ function walkFiles(
 			}
 		}
 		const subDirs = dir.getFolders();
+		const subDirsList: GoogleAppsScript.Drive.Folder[] = [];
 		while (subDirs.hasNext()) {
-			stack.push(subDirs.next());
+			subDirsList.push(subDirs.next());
+		}
+		for (let i = subDirsList.length - 1; i >= 0; i--) {
+			stack.push(subDirsList[i]);
 		}
 	}
 	return n;
