@@ -134,11 +134,12 @@ function walkFiles(
 function getLocationString(f: GoogleAppsScript.Drive.File): string {
 	// parents が親フォルダを順に返してくれるので，それを
 	// root » folder » subfolder みたいな文字列にする
-	const parentsIterator = f.getParents();
+	let parentsIterator = f.getParents();
 	const parents: Array<string> = [];
 	while (parentsIterator.hasNext()) {
 		const parent = parentsIterator.next();
 		parents.push(parent.getName());
+		parentsIterator = parent.getParents();
 	}
 	return parents.reverse().join(" \u00BB ");
 }
